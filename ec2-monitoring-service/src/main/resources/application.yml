@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: ec2-monitoring
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: ${CONTEXT_PATH:/api}
+
+# AWS 설정 (환경변수에서 가져옴)
+aws:
+  region: ${AWS_REGION:us-east-2}
+  profile: ${AWS_PROFILE:default}
+  test-instance:
+    id: ${EC2_INSTANCE_ID:}
+    name: ${EC2_INSTANCE_NAME:}
+    type: ${EC2_INSTANCE_TYPE:}
+    ami-id: ${EC2_AMI_ID:}
+    platform: ${EC2_PLATFORM:}
+    vcpu-count: ${EC2_VCPU_COUNT:2}
+  cloudwatch:
+    default-period: ${CLOUDWATCH_DEFAULT_PERIOD:300}
+    max-datapoints: ${CLOUDWATCH_MAX_DATAPOINTS:1440}
+
+# 로깅 설정 (환경변수에서 가져옴)
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.aws.ec2monitoring: ${LOG_LEVEL_APP:DEBUG}
+    software.amazon.awssdk: INFO
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator 설정 (헬스체크용)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

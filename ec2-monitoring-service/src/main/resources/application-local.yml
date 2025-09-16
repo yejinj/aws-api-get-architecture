@@ -1,0 +1,25 @@
+# 로컬 개발 환경 설정
+# 실제 값들은 .env 파일에서 관리
+spring:
+  profiles:
+    active: local
+
+# 개발용 로깅 설정 (더 상세한 로그)
+logging:
+  level:
+    com.aws.ec2monitoring: DEBUG
+    software.amazon.awssdk: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.boot.web: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# 개발용 추가 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,configprops
+  endpoint:
+    health:
+      show-details: always
