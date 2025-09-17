@@ -1,10 +1,10 @@
-package com.aws.ec2monitoring.controller;
+package com.aws.monitoring.controller;
 
-import com.aws.ec2monitoring.dto.InstanceDto;
-import com.aws.ec2monitoring.dto.MetricDto;
-import com.aws.ec2monitoring.dto.UsageSummaryDto;
-import com.aws.ec2monitoring.service.CloudWatchService;
-import com.aws.ec2monitoring.service.Ec2Service;
+import com.aws.monitoring.dto.InstanceDto;
+import com.aws.monitoring.dto.MetricDto;
+import com.aws.monitoring.dto.UsageSummaryDto;
+import com.aws.monitoring.service.ec2.CloudWatchService;
+import com.aws.monitoring.service.ec2.Ec2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

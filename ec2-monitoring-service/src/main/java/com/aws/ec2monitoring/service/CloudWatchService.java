@@ -1,8 +1,8 @@
-package com.aws.ec2monitoring.service;
+package com.aws.monitoring.service.ec2;
 
-import com.aws.ec2monitoring.config.AwsProperties;
-import com.aws.ec2monitoring.dto.MetricDto;
-import com.aws.ec2monitoring.dto.UsageSummaryDto;
+import com.aws.monitoring.config.AwsProperties;
+import com.aws.monitoring.dto.MetricDto;
+import com.aws.monitoring.dto.UsageSummaryDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

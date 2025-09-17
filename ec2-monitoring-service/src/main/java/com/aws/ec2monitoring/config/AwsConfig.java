@@ -1,4 +1,4 @@
-package com.aws.ec2monitoring.config;
+package com.aws.monitoring.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,13 +10,15 @@ import software.amazon.awssdk.core.retry.RetryPolicy;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.lambda.LambdaClient;
 
 import java.time.Duration;
 
 /**
- * AWS SDK 클라이언트 설정
- * - EC2 클라이언트: 인스턴스 메타데이터 조회용
- * - CloudWatch 클라이언트: 메트릭 데이터 조회용
+ * AWS SDK 클라이언트 통합 설정
+ * 지원 서비스: EC2, S3, RDS, Lambda, CloudWatch
  */
 @Slf4j
 @Configuration
@@ -28,44 +30,78 @@ public class AwsConfig {
 
     /**
      * EC2 클라이언트 빈 생성
-     * 인스턴스 정보, 상태, 태그 등을 조회하는데 사용
      */
     @Bean
     public Ec2Client ec2Client() {
-        log.info("EC2 클라이언트 초기화 - 리전: {}, 프로필: {}", awsProperties.getRegion(), awsProperties.getProfile());
-        log.info("테스트 인스턴스: {} ({})", awsProperties.getTestInstance().getName(), awsProperties.getTestInstance().getId());
-        
+        log.info("EC2 클라이언트 초기화 - 리전: {}", awsProperties.getRegion());
         return Ec2Client.builder()
                 .region(Region.of(awsProperties.getRegion()))
                 .credentialsProvider(getCredentialsProvider())
-                .overrideConfiguration(builder -> builder
-                        .retryPolicy(RetryPolicy.builder()
-                                .numRetries(3)
-                                .build())
-                        .apiCallTimeout(Duration.ofSeconds(30))
-                        .apiCallAttemptTimeout(Duration.ofSeconds(10))
-                )
+                .overrideConfiguration(getClientOverrideConfiguration(Duration.ofSeconds(30), Duration.ofSeconds(10)))
+                .build();
+    }
+
+    /**
+     * S3 클라이언트 빈 생성
+     */
+    @Bean
+    public S3Client s3Client() {
+        log.info("S3 클라이언트 초기화 - 리전: {}", awsProperties.getRegion());
+        return S3Client.builder()
+                .region(Region.of(awsProperties.getRegion()))
+                .credentialsProvider(getCredentialsProvider())
+                .overrideConfiguration(getClientOverrideConfiguration(Duration.ofSeconds(30), Duration.ofSeconds(10)))
+                .build();
+    }
+
+    /**
+     * RDS 클라이언트 빈 생성
+     */
+    @Bean
+    public RdsClient rdsClient() {
+        log.info("RDS 클라이언트 초기화 - 리전: {}", awsProperties.getRegion());
+        return RdsClient.builder()
+                .region(Region.of(awsProperties.getRegion()))
+                .credentialsProvider(getCredentialsProvider())
+                .overrideConfiguration(getClientOverrideConfiguration(Duration.ofSeconds(30), Duration.ofSeconds(10)))
+                .build();
+    }
+
+    /**
+     * Lambda 클라이언트 빈 생성
+     */
+    @Bean
+    public LambdaClient lambdaClient() {
+        log.info("Lambda 클라이언트 초기화 - 리전: {}", awsProperties.getRegion());
+        return LambdaClient.builder()
+                .region(Region.of(awsProperties.getRegion()))
+                .credentialsProvider(getCredentialsProvider())
+                .overrideConfiguration(getClientOverrideConfiguration(Duration.ofSeconds(30), Duration.ofSeconds(10)))
                 .build();
     }
 
     /**
      * CloudWatch 클라이언트 빈 생성
-     * CPU, 네트워크, 디스크 등의 메트릭을 조회하는데 사용
      */
     @Bean
     public CloudWatchClient cloudWatchClient() {
-        log.info("CloudWatch 클라이언트 초기화 - 리전: {}, 프로필: {}", awsProperties.getRegion(), awsProperties.getProfile());
-        
+        log.info("CloudWatch 클라이언트 초기화 - 리전: {}", awsProperties.getRegion());
         return CloudWatchClient.builder()
                 .region(Region.of(awsProperties.getRegion()))
                 .credentialsProvider(getCredentialsProvider())
-                .overrideConfiguration(builder -> builder
-                        .retryPolicy(RetryPolicy.builder()
-                                .numRetries(3)
-                                .build())
-                        .apiCallTimeout(Duration.ofSeconds(60))
-                        .apiCallAttemptTimeout(Duration.ofSeconds(20))
-                )
+                .overrideConfiguration(getClientOverrideConfiguration(Duration.ofSeconds(60), Duration.ofSeconds(20)))
+                .build();
+    }
+
+    /**
+     * 공통 클라이언트 설정 생성
+     */
+    private software.amazon.awssdk.core.client.config.ClientOverrideConfiguration getClientOverrideConfiguration(
+            Duration apiCallTimeout, Duration apiCallAttemptTimeout) {
+        return software.amazon.awssdk.core.client.config.ClientOverrideConfiguration.builder()
+                .retryPolicy(RetryPolicy.builder().numRetries(3).build())
+                .apiCallTimeout(apiCallTimeout)
+                .apiCallAttemptTimeout(apiCallAttemptTimeout)
                 .build();
     }
 

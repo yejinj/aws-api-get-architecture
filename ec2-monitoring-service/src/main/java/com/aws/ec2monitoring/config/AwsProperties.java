@@ -1,11 +1,11 @@
-package com.aws.ec2monitoring.config;
+package com.aws.monitoring.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * AWS 관련 설정 Properties
+ * AWS 통합 서비스 설정 Properties
  */
 @Data
 @Component
@@ -23,9 +23,24 @@ public class AwsProperties {
     private String profile = "default";
 
     /**
-     * 테스트용 인스턴스 정보
+     * EC2 관련 설정
      */
-    private TestInstance testInstance = new TestInstance();
+    private Ec2Config ec2 = new Ec2Config();
+
+    /**
+     * S3 관련 설정
+     */
+    private S3Config s3 = new S3Config();
+
+    /**
+     * RDS 관련 설정
+     */
+    private RdsConfig rds = new RdsConfig();
+
+    /**
+     * Lambda 관련 설정
+     */
+    private LambdaConfig lambda = new LambdaConfig();
 
     /**
      * CloudWatch 설정
@@ -33,36 +48,36 @@ public class AwsProperties {
     private CloudWatch cloudwatch = new CloudWatch();
 
     @Data
-    public static class TestInstance {
-        /**
-         * 인스턴스 ID
-         */
-        private String id = "i-0da1b71ae6f874a24";
+    public static class Ec2Config {
+        private TestInstance testInstance = new TestInstance();
+        
+        @Data
+        public static class TestInstance {
+            private String id = "";
+            private String name = "";
+            private String type = "t3.micro";
+            private String amiId = "";
+            private String platform = "Linux/UNIX";
+            private Integer vcpuCount = 2;
+        }
+    }
 
-        /**
-         * 인스턴스 이름
-         */
-        private String name = "apitest";
+    @Data
+    public static class S3Config {
+        private String defaultBucket = "";
+        private Integer maxKeys = 1000;
+    }
 
-        /**
-         * 인스턴스 타입
-         */
-        private String type = "t3.micro";
+    @Data
+    public static class RdsConfig {
+        private String defaultDbInstanceId = "";
+        private Integer maxRecords = 100;
+    }
 
-        /**
-         * AMI ID
-         */
-        private String amiId = "ami-0634f3c109dcdc659";
-
-        /**
-         * 플랫폼
-         */
-        private String platform = "Linux/UNIX";
-
-        /**
-         * vCPU 수
-         */
-        private Integer vcpuCount = 2;
+    @Data
+    public static class LambdaConfig {
+        private String defaultFunctionName = "";
+        private Integer maxItems = 50;
     }
 
     @Data

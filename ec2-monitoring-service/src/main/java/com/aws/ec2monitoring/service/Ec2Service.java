@@ -1,8 +1,8 @@
-package com.aws.ec2monitoring.service;
+package com.aws.monitoring.service.ec2;
 
-import com.aws.ec2monitoring.dto.InstanceDto;
+import com.aws.monitoring.dto.InstanceDto;
+import com.aws.monitoring.service.common.AbstractAwsService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.*;
@@ -15,20 +15,37 @@ import java.util.stream.Collectors;
  * EC2 인스턴스 관련 서비스
  * AWS EC2 API를 통해 인스턴스 정보를 조회
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
-public class Ec2Service {
+public class Ec2Service extends AbstractAwsService<InstanceDto> {
 
     private final Ec2Client ec2Client;
 
+    @Override
+    public String getServiceName() {
+        return "EC2";
+    }
+
+    @Override
+    public List<InstanceDto> listAllResources() {
+        return listAllInstances();
+    }
+
+    @Override
+    public List<InstanceDto> listActiveResources() {
+        return listRunningInstances();
+    }
+
+    @Override
+    public InstanceDto getResourceById(String resourceId) {
+        return getInstanceById(resourceId);
+    }
+
     /**
      * 계정 내 모든 EC2 인스턴스 목록 조회
-     * 
-     * @return 인스턴스 정보 목록
      */
     public List<InstanceDto> listAllInstances() {
-        log.info("모든 EC2 인스턴스 목록 조회 시작");
+        logOperation("모든 인스턴스 목록 조회");
         
         try {
             DescribeInstancesRequest request = DescribeInstancesRequest.builder().build();
@@ -39,23 +56,19 @@ public class Ec2Service {
                     .map(this::convertToInstanceDto)
                     .collect(Collectors.toList());
 
-            log.info("EC2 인스턴스 {}개 조회 완료", instances.size());
+            logResult("모든 인스턴스 목록 조회", instances.size());
             return instances;
 
         } catch (Exception e) {
-            log.error("EC2 인스턴스 목록 조회 실패", e);
-            throw new RuntimeException("EC2 인스턴스 목록 조회에 실패했습니다: " + e.getMessage(), e);
+            throw handleAwsException("인스턴스 목록 조회", e);
         }
     }
 
     /**
      * 특정 인스턴스 정보 조회
-     * 
-     * @param instanceId 인스턴스 ID
-     * @return 인스턴스 정보
      */
     public InstanceDto getInstanceById(String instanceId) {
-        log.info("인스턴스 정보 조회: {}", instanceId);
+        logOperation("인스턴스 정보 조회", instanceId);
         
         try {
             DescribeInstancesRequest request = DescribeInstancesRequest.builder()
@@ -71,18 +84,15 @@ public class Ec2Service {
                     .orElseThrow(() -> new RuntimeException("인스턴스를 찾을 수 없습니다: " + instanceId));
                     
         } catch (Exception e) {
-            log.error("인스턴스 정보 조회 실패: {}", instanceId, e);
-            throw new RuntimeException("인스턴스 정보 조회에 실패했습니다: " + e.getMessage(), e);
+            throw handleAwsException("인스턴스 정보 조회", e);
         }
     }
 
     /**
      * 실행 중인 인스턴스만 조회
-     * 
-     * @return 실행 중인 인스턴스 목록
      */
     public List<InstanceDto> listRunningInstances() {
-        log.info("실행 중인 EC2 인스턴스 목록 조회 시작");
+        logOperation("실행 중인 인스턴스 목록 조회");
         
         try {
             DescribeInstancesRequest request = DescribeInstancesRequest.builder()
@@ -99,12 +109,11 @@ public class Ec2Service {
                     .map(this::convertToInstanceDto)
                     .collect(Collectors.toList());
 
-            log.info("실행 중인 EC2 인스턴스 {}개 조회 완료", instances.size());
+            logResult("실행 중인 인스턴스 목록 조회", instances.size());
             return instances;
 
         } catch (Exception e) {
-            log.error("실행 중인 EC2 인스턴스 목록 조회 실패", e);
-            throw new RuntimeException("실행 중인 EC2 인스턴스 목록 조회에 실패했습니다: " + e.getMessage(), e);
+            throw handleAwsException("실행 중인 인스턴스 목록 조회", e);
         }
     }
 

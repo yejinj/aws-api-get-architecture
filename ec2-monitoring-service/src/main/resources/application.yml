@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ec2-monitoring
+    name: aws-monitoring
   jackson:
     serialization:
       write-dates-as-timestamps: false
@@ -12,17 +12,32 @@ server:
   servlet:
     context-path: ${CONTEXT_PATH:/api}
 
-# AWS 설정 (환경변수에서 가져옴)
+# AWS 통합 서비스 설정 (환경변수에서 가져옴)
 aws:
   region: ${AWS_REGION:us-east-2}
   profile: ${AWS_PROFILE:default}
-  test-instance:
-    id: ${EC2_INSTANCE_ID:}
-    name: ${EC2_INSTANCE_NAME:}
-    type: ${EC2_INSTANCE_TYPE:}
-    ami-id: ${EC2_AMI_ID:}
-    platform: ${EC2_PLATFORM:}
-    vcpu-count: ${EC2_VCPU_COUNT:2}
+  # EC2 설정
+  ec2:
+    test-instance:
+      id: ${EC2_INSTANCE_ID:}
+      name: ${EC2_INSTANCE_NAME:}
+      type: ${EC2_INSTANCE_TYPE:t3.micro}
+      ami-id: ${EC2_AMI_ID:}
+      platform: ${EC2_PLATFORM:Linux/UNIX}
+      vcpu-count: ${EC2_VCPU_COUNT:2}
+  # S3 설정
+  s3:
+    default-bucket: ${S3_DEFAULT_BUCKET:}
+    max-keys: ${S3_MAX_KEYS:1000}
+  # RDS 설정
+  rds:
+    default-db-instance-id: ${RDS_DEFAULT_DB_INSTANCE_ID:}
+    max-records: ${RDS_MAX_RECORDS:100}
+  # Lambda 설정
+  lambda:
+    default-function-name: ${LAMBDA_DEFAULT_FUNCTION_NAME:}
+    max-items: ${LAMBDA_MAX_ITEMS:50}
+  # CloudWatch 설정
   cloudwatch:
     default-period: ${CLOUDWATCH_DEFAULT_PERIOD:300}
     max-datapoints: ${CLOUDWATCH_MAX_DATAPOINTS:1440}
@@ -31,7 +46,7 @@ aws:
 logging:
   level:
     root: ${LOG_LEVEL_ROOT:INFO}
-    com.aws.ec2monitoring: ${LOG_LEVEL_APP:DEBUG}
+    com.aws.monitoring: ${LOG_LEVEL_APP:DEBUG}
     software.amazon.awssdk: INFO
     org.springframework.web: INFO
   pattern:

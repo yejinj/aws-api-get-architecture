@@ -1,4 +1,4 @@
-package com.aws.ec2monitoring.dto;
+package com.aws.monitoring.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
