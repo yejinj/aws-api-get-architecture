@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: rds-monitoring
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+server:
+  port: ${SERVER_PORT:8081}
+  servlet:
+    context-path: ${CONTEXT_PATH:/api}
+
+# AWS RDS 서비스 설정
+aws:
+  region: ${AWS_REGION:us-east-2}
+  profile: ${AWS_PROFILE:default}
+  rds:
+    instance-id: ${RDS_INSTANCE_ID:database-1}
+    master-username: ${RDS_MASTER_USERNAME:admin}
+    endpoint: ${RDS_ENDPOINT:database-1.cjca0sm8845q.us-east-2.rds.amazonaws.com}
+    port: ${RDS_PORT:3306}
+    engine: ${RDS_ENGINE:mysql}
+    availability-zone: ${RDS_AVAILABILITY_ZONE:us-east-2c}
+    vpc-id: ${RDS_VPC_ID:vpc-0b3967175cc6787e1}
+    subnet-group: ${RDS_SUBNET_GROUP:default-vpc-0b3967175cc6787e1}
+    publicly-accessible: ${RDS_PUBLICLY_ACCESSIBLE:false}
+  cloudwatch:
+    default-period: ${CLOUDWATCH_DEFAULT_PERIOD:300}
+    max-datapoints: ${CLOUDWATCH_MAX_DATAPOINTS:1440}
+
+# 로깅 설정
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.aws.rds.monitoring: ${LOG_LEVEL_APP:DEBUG}
+    software.amazon.awssdk: INFO
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
